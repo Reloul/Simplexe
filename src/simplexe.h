@@ -21,7 +21,9 @@ void initTab(int nbVar, int nbContrainte, float **tab, float** newTab);
 
 int rechercheEntrant(float** newTab, int nbVar, int nbContrainte);
 
-int rechercheSortant(float** newTab, int nbVar, int nbContrainte, int varEntr);
+int rechercheSortant(float** newTab, int nbContrainte, int varEntr);
+
+void calculLigne(float** tab, int x, int y, int longu, int larg);
 
 void simplexe();
 #endif

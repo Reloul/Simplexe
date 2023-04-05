@@ -101,15 +101,19 @@ void initTab(int nbVar, int nbContrainte, float **tab, float** newTab){
 
 int rechercheEntrant(float** newTab, int nbVar, int nbContrainte){
     int i;
-    int colonne;
+    int colonne=0;
     float max=0;
+    float temp;
+    
     for(i=1;i<(nbVar + nbContrainte + 1); i++){
-        if(newTab[0][i]>max){
-            max = newTab[0][i];
+        temp = newTab[0][i];
+        if(temp>max){
+            max = temp;
             colonne = i;
         }
     }
-    return(colonne);
+    // printf("colonne retournee : %d", colonne);
+    return colonne;
 }
 
 /*!
@@ -136,6 +140,9 @@ int rechercheSortant(float** newTab, int nbContrainte, int varEntr){
             }
         }
     }
+    if(min <= 0 ){
+        ligne = 0;
+    }
     return(ligne); 
 }
 
@@ -153,21 +160,22 @@ int rechercheSortant(float** newTab, int nbContrainte, int varEntr){
 */
 
 void calculLigne(float** tab, int x, int y, int longu, int larg){
-    int i,j,temp, valLigne;
+    int i,j;
+    float valLigne, temp;
     temp = tab[x][y];
-    printf("%d \n", larg);
     for(i=0;i<(larg); i++){
         tab[x][i] = tab[x][i]/temp;
-        printf("%f \n", tab[x][i]);
     }
-    for(j=0; j<longu;j++){
-        valLigne = tab[j][y];
-        for(i=0; i<(larg);i++){
-            if(j!=y){
-                tab[j][i] = valLigne*tab[j][y];
+    for (i = 0; i < longu; i++){
+        if (i != x){
+            valLigne = tab[i][y];
+            for ( j = 0; j < larg; j++){
+                tab[i][j] -= tab[x][j]*valLigne;
             }
         }
+        
     }
+    
 }
 
 /*!
@@ -194,7 +202,7 @@ void simplexe(){
     tab[2][2] = 3;
     tab[3][0] = 1;
     tab[3][1] = -0.5;
-    tab[3][2] = 1;nbContrainte = 3;
+    tab[3][2] = 1;
     nbContrainte = 3;
     nbVar = 2;
     newTab = malloc((nbContrainte+1)*sizeof *newTab);
@@ -205,12 +213,20 @@ void simplexe(){
     affichage(tab, 4, 3);
     printf("\n");
     initTab(2, 3, tab, newTab);
+    
     entrant = rechercheEntrant(newTab, nbVar, nbContrainte);
-    printf("%d \n", entrant);
     sortant = rechercheSortant(newTab, nbContrainte, entrant);
-    printf("%d \n", sortant);
-    calculLigne(newTab,sortant,entrant, nbContrainte+1, nbContrainte+nbVar+1);
-    affichage(tab, (nbContrainte+1), (nbVar + nbContrainte +1));
+
+    while (entrant != 0 && sortant != 0){
+        printf("var entrante : %d, var sortante : %d, pivot : %f \n", entrant, sortant, newTab[entrant][sortant]);
+        calculLigne(newTab,sortant,entrant, nbContrainte+1, nbContrainte+nbVar+1);
+        affichage(newTab, nbContrainte+1,nbContrainte+nbVar+1);
+        printf("\n");
+        printf("Valeur : %f\n", newTab[0][0]);
+        entrant = rechercheEntrant(newTab, nbVar, nbContrainte);
+        sortant = rechercheSortant(newTab, nbContrainte, entrant);
+    }
+    
     liberation(newTab,nbContrainte+1);
     liberation(tab, 4);
 }

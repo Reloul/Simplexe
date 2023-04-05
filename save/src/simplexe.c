@@ -101,19 +101,15 @@ void initTab(int nbVar, int nbContrainte, float **tab, float** newTab){
 
 int rechercheEntrant(float** newTab, int nbVar, int nbContrainte){
     int i;
-    int colonne=0;
+    int colonne;
     float max=0;
-    float temp;
-    
     for(i=1;i<(nbVar + nbContrainte + 1); i++){
-        temp = newTab[0][i];
-        if(temp>max){
-            max = temp;
+        if(newTab[0][i]>max){
+            max = newTab[0][i];
             colonne = i;
         }
     }
-    // printf("colonne retournee : %d", colonne);
-    return colonne;
+    return(colonne);
 }
 
 /*!
@@ -125,7 +121,7 @@ int rechercheEntrant(float** newTab, int nbVar, int nbContrainte){
  *  \param newTab pointeur de pointeur de réel représentant un tableau de réel de 2 dimensions
  *  \param nbContrainte entier représentant le nombre de contrainte du problème
  *  \param varEntr entier représentant le numéro de colonne de la variable sortante
- *  \return ligne l'entier qui représente la position de la variable entrante (la ligne)
+ *  \return i l'entier qui représente la position de la variable entrante (la ligne)
 */
 
 int rechercheSortant(float** newTab, int nbContrainte, int varEntr){
@@ -133,49 +129,14 @@ int rechercheSortant(float** newTab, int nbContrainte, int varEntr){
     float min=0;
     int ligne;
     for(i=1;i<(nbContrainte + 1); i++){
-        if (newTab[i][varEntr] > 0){
+        if (newTab[i][varEntr] <= 0){
             if(((newTab[i][0]/newTab[i][varEntr]) < min) || (min == 0) ){
                 min = (newTab[i][0]/newTab[i][varEntr]);
                 ligne = i;
             }
         }
     }
-    if(min <= 0 ){
-        ligne = 0;
-    }
     return(ligne); 
-}
-
-/*!
- *  \fn void calculLigne(float** tab, int varEntr, int varSort, int nbVar, int nbContrainte)
- *  \author SERRES Valentin <serresvale@cy-tech.fr> BIGOT Léo-Paul <bigotleopa@cy-tech.fr>
- *  \version 0.1 Premier jet
- *  \date Fri 31 2023 - 12:10:44
- *  \brief procédure de modification des lignes du tableaux
- *  \param tab pointeur de pointeur de réel représentant un tableau 2 dimensions
- *  \param varEntr entier représentant la colonne de la variable entrante
- *  \param varSort entier représentant la ligne de la variable sortante
- *  \param nbVar entier représentant le nombre de variable du problème
- *  \param nbContrainte entier représentant le nombre de contrainte du problème
-*/
-
-void calculLigne(float** tab, int x, int y, int longu, int larg){
-    int i,j;
-    float valLigne, temp;
-    temp = tab[x][y];
-    for(i=0;i<(larg); i++){
-        tab[x][i] = tab[x][i]/temp;
-    }
-    for (i = 0; i < longu; i++){
-        if (i != x){
-            valLigne = tab[i][y];
-            for ( j = 0; j < larg; j++){
-                tab[i][j] -= tab[x][j]*valLigne;
-            }
-        }
-        
-    }
-    
 }
 
 /*!
@@ -187,7 +148,7 @@ void calculLigne(float** tab, int x, int y, int longu, int larg){
 */
 
 void simplexe(){
-    int i, nbVar, nbContrainte, entrant, sortant;
+    int i, nbVar, nbContrainte, entrant;
     float** tab, **newTab;
     tab = malloc(4*sizeof *tab);
     for (i=0;i<4;i++)
@@ -202,7 +163,7 @@ void simplexe(){
     tab[2][2] = 3;
     tab[3][0] = 1;
     tab[3][1] = -0.5;
-    tab[3][2] = 1;
+    tab[3][2] = 1;nbContrainte = 3;
     nbContrainte = 3;
     nbVar = 2;
     newTab = malloc((nbContrainte+1)*sizeof *newTab);
@@ -213,20 +174,9 @@ void simplexe(){
     affichage(tab, 4, 3);
     printf("\n");
     initTab(2, 3, tab, newTab);
-    
     entrant = rechercheEntrant(newTab, nbVar, nbContrainte);
-    sortant = rechercheSortant(newTab, nbContrainte, entrant);
-
-    while (entrant != 0 && sortant != 0){
-        printf("var entrante : %d, var sortante : %d, pivot : %f \n", entrant, sortant, newTab[entrant][sortant]);
-        calculLigne(newTab,sortant,entrant, nbContrainte+1, nbContrainte+nbVar+1);
-        affichage(newTab, nbContrainte+1,nbContrainte+nbVar+1);
-        printf("\n");
-        printf("Valeur : %f\n", newTab[0][0]);
-        entrant = rechercheEntrant(newTab, nbVar, nbContrainte);
-        sortant = rechercheSortant(newTab, nbContrainte, entrant);
-    }
-    
+    printf("%d \n", entrant);
+    printf("%d \n", rechercheSortant(newTab, nbContrainte, entrant));
     liberation(newTab,nbContrainte+1);
     liberation(tab, 4);
 }
